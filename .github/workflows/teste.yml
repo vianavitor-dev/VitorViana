@@ -1,0 +1,17 @@
+name: Caller Workflow
+# Define o nome do workflow como "Caller Workflow".
+
+on: [push, pull_request]
+# O workflow é acionado em eventos de push e pull request.
+
+jobs:
+  call-reusable-workflow:
+    # Define um job chamado "call-reusable-workflow".
+    
+    uses: vianavitor-dev/VitorViana-workflow/.github/workflows/ci.yml@main
+    # Especifica a localização do workflow reutilizável que deve ser chamado.
+    # Certifique-se de que o caminho e branch (main) estão corretos.
+
+    with:
+      message: "Teste Realizado com sucesso"
+      # Passa a mensagem "Teste Realizado" como input para o workflow reutilizável.
