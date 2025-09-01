@@ -1,0 +1,53 @@
+name: CI - Teste, Qualidade e Segurança (Robocode Local)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  qualidade-seguranca:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Instalar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Compilar Astroboys.java com dependência robocode.jar
+        run: javac -cp libs/robocode.jar Astroboys.java
+
+      - name: Baixar Checkstyle (10.12.4)
+        run: wget https://github.com/checkstyle/checkstyle/releases/download/checkstyle-10.12.4/checkstyle-10.12.4-all.jar -O checkstyle.jar
+
+      - name: Rodar Checkstyle
+        run: java -jar checkstyle.jar -c libs/google_checks.xml Astroboys.java
+
+      - name: Baixar SpotBugs
+        run: wget https://repo1.maven.org/maven2/com/github/spotbugs/spotbugs/4.8.3/spotbugs-4.8.3.tgz -O spotbugs.tgz
+
+      - name: Extrair SpotBugs
+        run: tar -xzf spotbugs.tgz
+
+      - name: Dar permissão de execução ao spotbugs
+        run: chmod +x spotbugs-4.8.3/bin/spotbugs
+
+      - name: Rodar SpotBugs
+        run: |
+          mkdir -p out
+          javac -cp libs/robocode.jar -d out Astroboys.java
+          spotbugs-4.8.3/bin/spotbugs -textui out/
+
+      - name: Exibir mensagem final de sucesso
+        if: ${{ success() }}
+        run: |
+          echo '🎉 CI executado com sucesso!'
+          echo 'Robô compilado, verificado com Checkstyle e analisado com SpotBugs.'
+          echo 'Arquivo usado: Astroboys.java'
+          echo 'Parabéns, pipeline completa e aprovada! 🚦'
